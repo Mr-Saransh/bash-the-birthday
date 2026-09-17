@@ -403,32 +403,36 @@ export default function FinaleScene({ config, onNext }: FinaleSceneProps) {
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.5rem',
-                  padding: '0.45rem 1.2rem',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  padding: '0.35rem 0.9rem',
                   borderRadius: '9999px',
                   background: 'linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06))',
                   border: `1.5px solid ${colors.accent}`,
                   backdropFilter: 'blur(12px)',
+                  maxWidth: '92vw',
+                  boxSizing: 'border-box',
                 }}
               >
                 <motion.span
                   animate={{ y: [0, -3, 0] }}
                   transition={{ duration: 1.2, repeat: Infinity }}
-                  style={{ fontSize: '1.1rem' }}
+                  style={{ fontSize: '1rem', flexShrink: 0 }}
                 >
                   🎈
                 </motion.span>
                 <span
                   style={{
-                    fontSize: 'clamp(0.8rem, 2.3vw, 0.94rem)',
+                    fontSize: 'clamp(0.72rem, 2.2vw, 0.84rem)',
                     fontWeight: 700,
                     color: '#ffffff',
-                    letterSpacing: '0.02em',
+                    letterSpacing: '0.01em',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {poppedBubbles.size === wishBubbles.length
-                    ? '🎉 You unlocked all birthday wishes! ✦'
-                    : `Tap the floating bubbles to pop wishes! (${poppedBubbles.size}/${wishBubbles.length})`}
+                    ? '🎉 All wishes unlocked!'
+                    : `Tap bubbles to pop wishes! (${poppedBubbles.size}/${wishBubbles.length})`}
                 </span>
               </motion.div>
 

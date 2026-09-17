@@ -172,25 +172,25 @@ export default function InteractiveUniverseScene({
     }
   }, [secretHoldTimer]);
 
-  // Viewport-safe positions for mobile vs desktop
+  // Viewport-safe positions for mobile vs desktop — completely clear of top header and bottom controls
   const desktopPositions = [
-    { x: '14%', y: '22%' },
-    { x: '72%', y: '20%' },
-    { x: '10%', y: '58%' },
-    { x: '76%', y: '56%' },
-    { x: '25%', y: '78%' },
-    { x: '65%', y: '78%' },
-    { x: '45%', y: '16%' },
+    { x: '12%', y: '25%' },
+    { x: '72%', y: '25%' },
+    { x: '8%', y: '50%' },
+    { x: '76%', y: '50%' },
+    { x: '16%', y: '74%' },
+    { x: '68%', y: '74%' },
+    { x: '42%', y: '75%' },
   ];
 
   const mobilePositions = [
-    { x: '12%', y: '18%' },
-    { x: '62%', y: '18%' },
-    { x: '10%', y: '42%' },
-    { x: '64%', y: '42%' },
-    { x: '15%', y: '66%' },
-    { x: '60%', y: '66%' },
-    { x: '38%', y: '82%' },
+    { x: '8%', y: '24%' },
+    { x: '65%', y: '24%' },
+    { x: '6%', y: '42%' },
+    { x: '67%', y: '42%' },
+    { x: '8%', y: '60%' },
+    { x: '65%', y: '60%' },
+    { x: '37%', y: '75%' },
   ];
 
   const positions = isMobile ? mobilePositions : desktopPositions;
@@ -204,47 +204,50 @@ export default function InteractiveUniverseScene({
       transition={{ duration: 0.6 }}
       style={{ padding: 0, cursor: 'default', overflow: 'hidden' }}
     >
-      {/* Scene title & Crystal Clear Direction Banner */}
+      {/* Scene title & Crystal Clear Direction Banner — Safely constrained within viewport */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.8 }}
         style={{
           position: 'absolute',
-          top: 'clamp(1rem, 3.5vh, 2.5rem)',
+          top: 'clamp(0.6rem, 2vh, 1.4rem)',
           left: '50%',
           transform: 'translateX(-50%)',
           textAlign: 'center',
-          zIndex: 10,
-          width: '92%',
+          zIndex: 15,
+          width: '94%',
+          maxWidth: '380px',
           pointerEvents: 'none',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '0.45rem',
+          gap: '0.35rem',
+          boxSizing: 'border-box',
         }}
       >
         <h2
           style={{
             fontFamily: config.theme.typography.displayFont,
-            fontSize: 'clamp(1.4rem, 4.2vw, 2.2rem)',
+            fontSize: 'clamp(1.25rem, 4vw, 1.85rem)',
             fontWeight: 800,
             color: colors.text,
             margin: 0,
             letterSpacing: '-0.02em',
             textShadow: `0 0 25px ${colors.glow}`,
+            lineHeight: 1.15,
           }}
         >
           {name}&apos;s Universe 🌌
         </h2>
 
-        {/* Clear, animated bubble-tap instruction pill */}
+        {/* Clear, compact bubble-tap instruction pill */}
         <motion.div
           animate={{
-            scale: [1, 1.04, 1],
+            scale: [1, 1.03, 1],
             boxShadow: [
               `0 0 15px ${colors.glow}`,
-              `0 0 30px ${colors.glow}`,
+              `0 0 25px ${colors.glow}`,
               `0 0 15px ${colors.glow}`,
             ],
           }}
@@ -252,41 +255,45 @@ export default function InteractiveUniverseScene({
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.45rem 1.15rem',
+            justifyContent: 'center',
+            gap: '0.4rem',
+            padding: '0.35rem 0.85rem',
             borderRadius: '9999px',
             background: 'linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05))',
             border: `1.5px solid ${colors.accent}`,
             backdropFilter: 'blur(12px)',
             pointerEvents: 'auto',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
           }}
         >
           <motion.span
             animate={{ rotate: [0, 15, -15, 0] }}
             transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-            style={{ fontSize: '1.1rem', display: 'inline-block' }}
+            style={{ fontSize: '1rem', display: 'inline-block', flexShrink: 0 }}
           >
             🫧
           </motion.span>
           <span
             style={{
-              fontSize: 'clamp(0.8rem, 2.3vw, 0.94rem)',
+              fontSize: 'clamp(0.72rem, 2.3vw, 0.84rem)',
               fontWeight: 700,
               color: '#ffffff',
-              letterSpacing: '0.02em',
+              letterSpacing: '0.01em',
+              whiteSpace: 'nowrap',
             }}
           >
             {discoveredItems.size === items.length
-              ? '🎉 All bubbles popped! Tap Continue below'
-              : `Tap the glowing bubbles to pop & discover! (${discoveredItems.size}/${items.length})`}
+              ? '🎉 All bubbles popped!'
+              : `Tap bubbles to pop! (${discoveredItems.size}/${items.length})`}
           </span>
         </motion.div>
 
         {/* Progress track */}
         <div
           style={{
-            width: '140px',
-            height: '4px',
+            width: '110px',
+            height: '3.5px',
             borderRadius: '9999px',
             background: 'rgba(255, 255, 255, 0.12)',
             overflow: 'hidden',

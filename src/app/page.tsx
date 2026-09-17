@@ -2,7 +2,26 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Sparkles, Heart, Play, Gift, Cake, Camera, Music, MessageCircle } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Sparkles,
+  Heart,
+  Play,
+  Gift,
+  Cake,
+  Camera,
+  Music,
+  MessageCircle,
+  Star,
+  ShieldCheck,
+  Zap,
+  Smile,
+  CheckCircle2,
+  Share2,
+  HelpCircle,
+  ChevronUp,
+} from 'lucide-react';
 import type { BirthdayData, Personality, Relationship, ExperienceConfig } from '@/lib/types';
 import { PERSONALITIES, RELATIONSHIPS } from '@/lib/types';
 import GenerationExperience from '@/components/create/GenerationExperience';
@@ -553,21 +572,54 @@ function BirthdayAppContent() {
             <div
               style={{
                 display: 'flex',
-                gap: '1.8rem',
-                marginTop: '1rem',
+                gap: '0.65rem',
+                marginTop: '0.75rem',
                 flexWrap: 'wrap',
-                fontSize: '0.85rem',
-                color: '#d4a4b4',
+                fontSize: '0.82rem',
+                color: '#fcd19c',
               }}
             >
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                ⚡ <strong>Under 60 seconds</strong>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  padding: '0.35rem 0.85rem',
+                  borderRadius: '9999px',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(251, 191, 36, 0.2)',
+                }}
+              >
+                <Zap size={13} color="#fbbf24" />
+                <span>Ready in <strong>60 seconds</strong></span>
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                🎨 <strong>AI Living Artwork</strong>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  padding: '0.35rem 0.85rem',
+                  borderRadius: '9999px',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(244, 63, 94, 0.25)',
+                }}
+              >
+                <Sparkles size={13} color="#f43f5e" />
+                <span><strong>Zero generic guessing</strong></span>
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                🔗 <strong>One shareable link</strong>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  padding: '0.35rem 0.85rem',
+                  borderRadius: '9999px',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(251, 191, 36, 0.2)',
+                }}
+              >
+                <Share2 size={13} color="#fbbf24" />
+                <span><strong>60 FPS mobile smooth</strong></span>
               </span>
             </div>
           </div>
@@ -1056,29 +1108,988 @@ function BirthdayAppContent() {
           </div>
         </section>
 
-        {/* ═══════════════ FOOTER ═══════════════ */}
-        <footer
+        {/* ═══════════════ EXPERIENCE CHAPTERS SHOWCASE ═══════════════ */}
+        <section
           style={{
-            marginTop: 'clamp(3rem, 6vw, 5rem)',
-            paddingTop: '2rem',
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            textAlign: 'center',
-            color: '#a0808c',
-            fontSize: '0.85rem',
+            marginTop: 'clamp(4rem, 8vw, 6.5rem)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.5rem',
-            alignItems: 'center',
+            gap: '2.5rem',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#fcd19c' }}>
-            <span>Crafted with</span>
-            <Heart size={14} fill="#f43f5e" color="#f43f5e" />
-            <span>for unforgettable birthday celebrations</span>
+          <div style={{ textAlign: 'center', maxWidth: '680px', margin: '0 auto' }}>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.35rem 0.95rem',
+                borderRadius: '9999px',
+                background: 'rgba(251, 191, 36, 0.12)',
+                border: '1px solid rgba(251, 191, 36, 0.3)',
+                color: '#fbbf24',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+              }}
+            >
+              <Sparkles size={13} />
+              Inside The Experience
+            </span>
+            <h2
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(1.8rem, 4.5vw, 2.75rem)',
+                fontWeight: 800,
+                letterSpacing: '-0.025em',
+                marginTop: '0.75rem',
+                lineHeight: 1.2,
+              }}
+            >
+              A cinematic 5-chapter celebration{' '}
+              <span
+                style={{
+                  background: 'linear-gradient(135deg, #f43f5e, #fb923c, #fbbf24)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                they will never forget.
+              </span>
+            </h2>
+            <p
+              style={{
+                color: '#d6b8c4',
+                fontSize: 'clamp(0.95rem, 2vw, 1.08rem)',
+                marginTop: '0.75rem',
+                lineHeight: 1.6,
+              }}
+            >
+              No boring static cards. Your answers are woven into a fluid, animated interactive storybook that runs like a dream on any phone.
+            </p>
           </div>
-          <p style={{ margin: 0, fontSize: '0.78rem' }}>
-            Works immediately on Vercel with zero database setup. Ready for database connection via .env anytime.
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '1.25rem',
+            }}
+          >
+            {/* Chapter 1 */}
+            <div
+              style={{
+                padding: '1.75rem',
+                borderRadius: '24px',
+                background: 'linear-gradient(165deg, rgba(30, 16, 26, 0.8) 0%, rgba(16, 9, 15, 0.9) 100%)',
+                border: '1px solid rgba(251, 191, 36, 0.15)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, rgba(244,63,94,0.25), rgba(251,191,36,0.2))',
+                  border: '1px solid rgba(244,63,94,0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Sparkles size={22} color="#fbbf24" />
+              </div>
+              <div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f43f5e', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Chapter 01
+                </span>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', fontWeight: 700, marginTop: '0.2rem' }}>
+                  The Personal Prologue
+                </h3>
+                <p style={{ fontSize: '0.92rem', color: '#c4a6b2', marginTop: '0.5rem', lineHeight: 1.55 }}>
+                  A cinematic sequence calling them out by name with suspenseful text lines that build anticipation before the big reveal.
+                </p>
+              </div>
+            </div>
+
+            {/* Chapter 2 */}
+            <div
+              style={{
+                padding: '1.75rem',
+                borderRadius: '24px',
+                background: 'linear-gradient(165deg, rgba(30, 16, 26, 0.8) 0%, rgba(16, 9, 15, 0.9) 100%)',
+                border: '1px solid rgba(251, 191, 36, 0.15)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, rgba(251,191,36,0.25), rgba(249,115,22,0.2))',
+                  border: '1px solid rgba(251,191,36,0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Cake size={22} color="#fbbf24" />
+              </div>
+              <div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Chapter 02
+                </span>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', fontWeight: 700, marginTop: '0.2rem' }}>
+                  Royal Persona Proclamation
+                </h3>
+                <p style={{ fontSize: '0.92rem', color: '#c4a6b2', marginTop: '0.5rem', lineHeight: 1.55 }}>
+                  AI crowns them with a bespoke Royal Title and 3 delightfully accurate descriptors based strictly on their real habits.
+                </p>
+              </div>
+            </div>
+
+            {/* Chapter 3 */}
+            <div
+              style={{
+                padding: '1.75rem',
+                borderRadius: '24px',
+                background: 'linear-gradient(165deg, rgba(30, 16, 26, 0.8) 0%, rgba(16, 9, 15, 0.9) 100%)',
+                border: '1px solid rgba(251, 191, 36, 0.15)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, rgba(244,63,94,0.2), rgba(217,70,239,0.2))',
+                  border: '1px solid rgba(244,63,94,0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Star size={22} color="#fb7185" />
+              </div>
+              <div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fb7185', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Chapter 03
+                </span>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', fontWeight: 700, marginTop: '0.2rem' }}>
+                  Interactive Solar System
+                </h3>
+                <p style={{ fontSize: '0.92rem', color: '#c4a6b2', marginTop: '0.5rem', lineHeight: 1.55 }}>
+                  A celestial constellation where they tap floating stars to uncover their signature quirk, inside joke, and favorite anthem.
+                </p>
+              </div>
+            </div>
+
+            {/* Chapter 4 */}
+            <div
+              style={{
+                padding: '1.75rem',
+                borderRadius: '24px',
+                background: 'linear-gradient(165deg, rgba(30, 16, 26, 0.8) 0%, rgba(16, 9, 15, 0.9) 100%)',
+                border: '1px solid rgba(251, 191, 36, 0.15)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, rgba(251,191,36,0.25), rgba(244,63,94,0.2))',
+                  border: '1px solid rgba(251,191,36,0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Camera size={22} color="#fbbf24" />
+              </div>
+              <div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Chapter 04
+                </span>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', fontWeight: 700, marginTop: '0.2rem' }}>
+                  Illuminated Polaroid Memory
+                </h3>
+                <p style={{ fontSize: '0.92rem', color: '#c4a6b2', marginTop: '0.5rem', lineHeight: 1.55 }}>
+                  Your uploaded photo floats in an illuminated Polaroid frame with ambient candlelight reflection and emotional memory notes.
+                </p>
+              </div>
+            </div>
+
+            {/* Chapter 5 */}
+            <div
+              style={{
+                padding: '1.75rem',
+                borderRadius: '24px',
+                background: 'linear-gradient(165deg, rgba(30, 16, 26, 0.8) 0%, rgba(16, 9, 15, 0.9) 100%)',
+                border: '1px solid rgba(251, 191, 36, 0.15)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, rgba(244,63,94,0.25), rgba(251,191,36,0.2))',
+                  border: '1px solid rgba(244,63,94,0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Gift size={22} color="#f43f5e" />
+              </div>
+              <div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f43f5e', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Chapter 05
+                </span>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', fontWeight: 700, marginTop: '0.2rem' }}>
+                  Candle Blowout & Grand Finale
+                </h3>
+                <p style={{ fontSize: '0.92rem', color: '#c4a6b2', marginTop: '0.5rem', lineHeight: 1.55 }}>
+                  They make a silent wish, tap the glowing candles, unwrap the digital gift box, and trigger a 60 FPS celebratory confetti shower.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════ HOW IT WORKS (3 SIMPLE STEPS) ═══════════════ */}
+        <section
+          style={{
+            marginTop: 'clamp(4rem, 8vw, 6.5rem)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '2.5rem',
+          }}
+        >
+          <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto' }}>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.35rem 0.95rem',
+                borderRadius: '9999px',
+                background: 'rgba(244, 63, 94, 0.12)',
+                border: '1px solid rgba(244, 63, 94, 0.3)',
+                color: '#fb7185',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+              }}
+            >
+              <Zap size={13} />
+              Quick & Effortless
+            </span>
+            <h2
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(1.8rem, 4.5vw, 2.75rem)',
+                fontWeight: 800,
+                letterSpacing: '-0.025em',
+                marginTop: '0.75rem',
+                lineHeight: 1.2,
+              }}
+            >
+              How it works in 3 quick steps
+            </h2>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '1.5rem',
+            }}
+          >
+            {/* Step 1 */}
+            <div
+              style={{
+                padding: '2rem',
+                borderRadius: '24px',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+              }}
+            >
+              <div
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #f43f5e, #fb923c)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 800,
+                  fontSize: '1.1rem',
+                  color: '#ffffff',
+                }}
+              >
+                1
+              </div>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 700 }}>
+                Share Their True Quirks
+              </h3>
+              <p style={{ fontSize: '0.92rem', color: '#c4a6b2', lineHeight: 1.6 }}>
+                Answer 4 quick prompts with real habits, their favorite anthem, and that 2 AM inside joke only you two understand.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div
+              style={{
+                padding: '2rem',
+                borderRadius: '24px',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+              }}
+            >
+              <div
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #fb923c, #fbbf24)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 800,
+                  fontSize: '1.1rem',
+                  color: '#ffffff',
+                }}
+              >
+                2
+              </div>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 700 }}>
+                AI Synthesizes The Magic
+              </h3>
+              <p style={{ fontSize: '0.92rem', color: '#c4a6b2', lineHeight: 1.6 }}>
+                BazaarLink AI scripts tailored narrative copy, and Cloudinary formats your photo into an illuminated floating memory.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div
+              style={{
+                padding: '2rem',
+                borderRadius: '24px',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+              }}
+            >
+              <div
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #fbbf24, #f43f5e)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 800,
+                  fontSize: '1.1rem',
+                  color: '#ffffff',
+                }}
+              >
+                3
+              </div>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 700 }}>
+                Drop The Link On Mobile
+              </h3>
+              <p style={{ fontSize: '0.92rem', color: '#c4a6b2', lineHeight: 1.6 }}>
+                Send the private link via WhatsApp, iMessage, or Instagram. It plays immediately in their phone browser without installing anything.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════ REAL REACTIONS / TESTIMONIALS ═══════════════ */}
+        <section
+          style={{
+            marginTop: 'clamp(4rem, 8vw, 6.5rem)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '2.5rem',
+          }}
+        >
+          <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto' }}>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.35rem 0.95rem',
+                borderRadius: '9999px',
+                background: 'rgba(251, 191, 36, 0.12)',
+                border: '1px solid rgba(251, 191, 36, 0.3)',
+                color: '#fbbf24',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+              }}
+            >
+              <Heart size={13} fill="#f43f5e" color="#f43f5e" />
+              Heartfelt Reactions
+            </span>
+            <h2
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(1.8rem, 4.5vw, 2.75rem)',
+                fontWeight: 800,
+                letterSpacing: '-0.025em',
+                marginTop: '0.75rem',
+                lineHeight: 1.2,
+              }}
+            >
+              Loved by best friends & partners
+            </h2>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '1.25rem',
+            }}
+          >
+            {/* Review 1 */}
+            <div
+              style={{
+                padding: '1.75rem',
+                borderRadius: '24px',
+                background: 'rgba(26, 15, 23, 0.7)',
+                border: '1px solid rgba(251, 191, 36, 0.15)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: '1.25rem',
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', gap: '0.25rem', color: '#fbbf24', marginBottom: '0.75rem' }}>
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={15} fill="#fbbf24" />
+                  ))}
+                </div>
+                <p style={{ fontSize: '0.95rem', color: '#f0d9e2', lineHeight: 1.6, fontStyle: 'italic' }}>
+                  &ldquo;Sent this to my girlfriend at midnight. When she clicked into the memory star and saw our road trip photo with our spicy ramen inside joke, she cried happy tears. 1000x better than a generic card!&rdquo;
+                </p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #f43f5e, #fbbf24)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
+                    color: '#ffffff',
+                  }}
+                >
+                  L
+                </div>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 700, fontSize: '0.92rem' }}>Liam D.</p>
+                  <p style={{ margin: 0, fontSize: '0.78rem', color: '#fbbf24' }}>Partner celebration</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Review 2 */}
+            <div
+              style={{
+                padding: '1.75rem',
+                borderRadius: '24px',
+                background: 'rgba(26, 15, 23, 0.7)',
+                border: '1px solid rgba(251, 191, 36, 0.15)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: '1.25rem',
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', gap: '0.25rem', color: '#fbbf24', marginBottom: '0.75rem' }}>
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={15} fill="#fbbf24" />
+                  ))}
+                </div>
+                <p style={{ fontSize: '0.95rem', color: '#f0d9e2', lineHeight: 1.6, fontStyle: 'italic' }}>
+                  &ldquo;My best friend literally thought I spent a week coding this. The royal persona title was hilarious and so spot on. The mobile animation ran super smooth without any lag.&rdquo;
+                </p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #fb923c, #f43f5e)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
+                    color: '#ffffff',
+                  }}
+                >
+                  S
+                </div>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 700, fontSize: '0.92rem' }}>Samira N.</p>
+                  <p style={{ margin: 0, fontSize: '0.78rem', color: '#fbbf24' }}>Best friend surprise</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Review 3 */}
+            <div
+              style={{
+                padding: '1.75rem',
+                borderRadius: '24px',
+                background: 'rgba(26, 15, 23, 0.7)',
+                border: '1px solid rgba(251, 191, 36, 0.15)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: '1.25rem',
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', gap: '0.25rem', color: '#fbbf24', marginBottom: '0.75rem' }}>
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={15} fill="#fbbf24" />
+                  ))}
+                </div>
+                <p style={{ fontSize: '0.95rem', color: '#f0d9e2', lineHeight: 1.6, fontStyle: 'italic' }}>
+                  &ldquo;Made one for my sister across the country. She opened it on WhatsApp during our FaceTime call and watching her tap each interactive star was priceless!&rdquo;
+                </p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #fbbf24, #ea580c)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
+                    color: '#ffffff',
+                  }}
+                >
+                  K
+                </div>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 700, fontSize: '0.92rem' }}>Kiran M.</p>
+                  <p style={{ margin: 0, fontSize: '0.78rem', color: '#fbbf24' }}>Sibling celebration</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════ FREQUENTLY ASKED QUESTIONS ═══════════════ */}
+        <section
+          style={{
+            marginTop: 'clamp(4rem, 8vw, 6.5rem)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '2rem',
+          }}
+        >
+          <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto' }}>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.35rem 0.95rem',
+                borderRadius: '9999px',
+                background: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                color: '#e0a4b5',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+              }}
+            >
+              <HelpCircle size={13} />
+              Got Questions?
+            </span>
+            <h2
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(1.8rem, 4.5vw, 2.75rem)',
+                fontWeight: 800,
+                letterSpacing: '-0.025em',
+                marginTop: '0.75rem',
+                lineHeight: 1.2,
+              }}
+            >
+              Everything you need to know
+            </h2>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '1.25rem',
+              maxWidth: '920px',
+              margin: '0 auto',
+              width: '100%',
+            }}
+          >
+            <div
+              style={{
+                padding: '1.5rem',
+                borderRadius: '20px',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
+              }}
+            >
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#fcd19c', marginBottom: '0.5rem' }}>
+                Do they need to install an app or sign up?
+              </h3>
+              <p style={{ fontSize: '0.9rem', color: '#c4a6b2', lineHeight: 1.6, margin: 0 }}>
+                Never! It is a pure web experience. When they tap the link on WhatsApp, iMessage, or Instagram, it opens immediately in their mobile browser without any barrier.
+              </p>
+            </div>
+
+            <div
+              style={{
+                padding: '1.5rem',
+                borderRadius: '20px',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
+              }}
+            >
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#fcd19c', marginBottom: '0.5rem' }}>
+                What if I don&apos;t have a photo to upload?
+              </h3>
+              <p style={{ fontSize: '0.9rem', color: '#c4a6b2', lineHeight: 1.6, margin: 0 }}>
+                Photos are 100% optional. If you omit a photo, the experience gracefully presents an enchanted celestial memory star surrounded by animated candlelight particles.
+              </p>
+            </div>
+
+            <div
+              style={{
+                padding: '1.5rem',
+                borderRadius: '20px',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
+              }}
+            >
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#fcd19c', marginBottom: '0.5rem' }}>
+                Will it lag on budget or older phones?
+              </h3>
+              <p style={{ fontSize: '0.9rem', color: '#c4a6b2', lineHeight: 1.6, margin: 0 }}>
+                No. We specifically engineered it with hardware-accelerated transforms, adaptive mobile particle throttling, and pause-on-scroll background rendering to maintain a silky 60 FPS.
+              </p>
+            </div>
+
+            <div
+              style={{
+                padding: '1.5rem',
+                borderRadius: '20px',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
+              }}
+            >
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#fcd19c', marginBottom: '0.5rem' }}>
+                Is it really completely free to create and send?
+              </h3>
+              <p style={{ fontSize: '0.9rem', color: '#c4a6b2', lineHeight: 1.6, margin: 0 }}>
+                Yes! There are zero hidden fees, subscriptions, or paywalls. Create as many magical surprise links for your loved ones as you wish.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════ FINAL CALL-TO-ACTION BANNER ═══════════════ */}
+        <section
+          style={{
+            marginTop: 'clamp(4rem, 8vw, 6.5rem)',
+            padding: 'clamp(2rem, 5vw, 3.5rem)',
+            borderRadius: '32px',
+            background: 'linear-gradient(135deg, rgba(244,63,94,0.18) 0%, rgba(251,191,36,0.2) 100%)',
+            border: '1.5px solid rgba(251,191,36,0.35)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(244,63,94,0.15)',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '1.5rem',
+          }}
+        >
+          <div
+            style={{
+              width: '54px',
+              height: '54px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #f43f5e, #fbbf24)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 30px rgba(251,191,36,0.45)',
+            }}
+          >
+            <Sparkles size={28} color="#ffffff" />
+          </div>
+
+          <h2
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(1.8rem, 4.5vw, 3rem)',
+              fontWeight: 800,
+              letterSpacing: '-0.025em',
+              maxWidth: '650px',
+              lineHeight: 1.15,
+            }}
+          >
+            Ready to make someone feel truly special today?
+          </h2>
+
+          <p style={{ color: '#f0d9e2', fontSize: '1.05rem', maxWidth: '520px', lineHeight: 1.6 }}>
+            Fill out the 4 short prompts in under 60 seconds. Get your instant celebration link and brighten their entire year.
           </p>
+
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <a
+              href="#create-card"
+              style={{
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                padding: '0.95rem 2.2rem',
+                borderRadius: '9999px',
+                background: 'linear-gradient(135deg, #f43f5e, #fb923c, #fbbf24)',
+                color: '#ffffff',
+                fontWeight: 700,
+                fontSize: '1rem',
+                boxShadow: '0 10px 35px rgba(244, 63, 94, 0.45)',
+              }}
+            >
+              <Sparkles size={18} />
+              <span>Create Their Surprise Now</span>
+            </a>
+            <button
+              onClick={loadDemo}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.95rem 1.6rem',
+                borderRadius: '9999px',
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(251, 191, 36, 0.35)',
+                color: '#fbbf24',
+                fontWeight: 600,
+                fontSize: '0.95rem',
+                cursor: 'pointer',
+              }}
+            >
+              <Play size={16} fill="#fbbf24" />
+              <span>Watch Live Demo</span>
+            </button>
+          </div>
+        </section>
+
+        {/* ═══════════════ PREMIUM CONSUMER FOOTER ═══════════════ */}
+        <footer
+          style={{
+            marginTop: 'clamp(4rem, 8vw, 6rem)',
+            paddingTop: '3rem',
+            paddingBottom: '2rem',
+            borderTop: '1px solid rgba(251, 191, 36, 0.15)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '2rem',
+            alignItems: 'center',
+            textAlign: 'center',
+          }}
+        >
+          {/* Brand header */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '9px',
+                  background: 'linear-gradient(135deg, #f43f5e, #fbbf24)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 0 15px rgba(251, 191, 36, 0.35)',
+                }}
+              >
+                <Sparkles size={17} color="#ffffff" />
+              </div>
+              <span
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 800,
+                  fontSize: '1.25rem',
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                Bash The Birthday
+              </span>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.88rem', color: '#c4a6b2', maxWidth: '440px' }}>
+              Reinventing digital birthday celebrations with interactive storytelling, glowing memories, and zero generic guesswork.
+            </p>
+          </div>
+
+          {/* Feature Badges */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.6rem',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              fontSize: '0.78rem',
+              color: '#fcd19c',
+            }}
+          >
+            <span style={{ padding: '0.3rem 0.8rem', borderRadius: '9999px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              ⚡ 100% Free Forever
+            </span>
+            <span style={{ padding: '0.3rem 0.8rem', borderRadius: '9999px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              🔒 Zero Data Tracking
+            </span>
+            <span style={{ padding: '0.3rem 0.8rem', borderRadius: '9999px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              📱 60 FPS Mobile Optimized
+            </span>
+            <span style={{ padding: '0.3rem 0.8rem', borderRadius: '9999px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              ✨ Powered by Deep Personalization
+            </span>
+          </div>
+
+          {/* Quick links & Back to Top */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1.5rem',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              fontSize: '0.86rem',
+            }}
+          >
+            <a
+              href="#create-card"
+              style={{ color: '#fbbf24', textDecoration: 'none', fontWeight: 600 }}
+            >
+              Create Surprise
+            </a>
+            <button
+              onClick={loadDemo}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#e0a4b5',
+                fontSize: '0.86rem',
+                cursor: 'pointer',
+                padding: 0,
+              }}
+            >
+              Watch Demo
+            </button>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#e0a4b5',
+                fontSize: '0.86rem',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                padding: 0,
+              }}
+            >
+              <span>Back to top</span>
+              <ChevronUp size={14} />
+            </button>
+          </div>
+
+          {/* Copyright & Signoff */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.4rem',
+              fontSize: '0.8rem',
+              color: '#8c6877',
+              borderTop: '1px solid rgba(255,255,255,0.05)',
+              paddingTop: '1.5rem',
+              width: '100%',
+              maxWidth: '560px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', color: '#e0a4b5' }}>
+              <span>Crafted with</span>
+              <Heart size={13} fill="#f43f5e" color="#f43f5e" />
+              <span>for unforgettable celebrations across the universe</span>
+            </div>
+            <p style={{ margin: 0, color: '#7a5a69', fontSize: '0.76rem' }}>
+              &copy; {new Date().getFullYear()} Bash The Birthday. All rights reserved.
+            </p>
+          </div>
         </footer>
       </div>
     </div>

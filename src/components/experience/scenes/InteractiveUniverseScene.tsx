@@ -120,10 +120,36 @@ export default function InteractiveUniverseScene({
     },
   ];
 
+  const playBubblePop = useCallback(() => {
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof window.AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(380, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1150, ctx.currentTime + 0.08);
+
+      gain.gain.setValueAtTime(0.18, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.1);
+    } catch {
+      // Audio autoplay policy fallback
+    }
+  }, []);
+
   const handleDiscover = useCallback((id: string) => {
+    playBubblePop();
     setOpenItem(id);
     setDiscoveredItems((prev) => new Set([...prev, id]));
-  }, []);
+  }, [playBubblePop]);
 
   const handleCloseItem = useCallback(() => {
     setOpenItem(null);
@@ -178,145 +204,329 @@ export default function InteractiveUniverseScene({
       transition={{ duration: 0.6 }}
       style={{ padding: 0, cursor: 'default', overflow: 'hidden' }}
     >
-      {/* Scene title */}
+      {/* Scene title & Crystal Clear Direction Banner */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.8 }}
         style={{
           position: 'absolute',
-          top: 'clamp(1.5rem, 5vh, 3.5rem)',
+          top: 'clamp(1rem, 3.5vh, 2.5rem)',
           left: '50%',
           transform: 'translateX(-50%)',
           textAlign: 'center',
           zIndex: 10,
-          width: '90%',
+          width: '92%',
           pointerEvents: 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '0.45rem',
         }}
       >
-        <p
-          className="caption-text"
-          style={{
-            textTransform: 'uppercase',
-            letterSpacing: '0.18em',
-            color: colors.textMuted,
-            marginBottom: '0.3rem',
-            fontSize: '0.8rem',
-          }}
-        >
-          ✦ Tap the stars to explore ✦
-        </p>
         <h2
           style={{
             fontFamily: config.theme.typography.displayFont,
-            fontSize: 'clamp(1.4rem, 4.5vw, 2.2rem)',
+            fontSize: 'clamp(1.4rem, 4.2vw, 2.2rem)',
+            fontWeight: 800,
             color: colors.text,
             margin: 0,
+            letterSpacing: '-0.02em',
+            textShadow: `0 0 25px ${colors.glow}`,
           }}
         >
-          {name}&apos;s Universe
+          {name}&apos;s Universe 🌌
         </h2>
+
+        {/* Clear, animated bubble-tap instruction pill */}
+        <motion.div
+          animate={{
+            scale: [1, 1.04, 1],
+            boxShadow: [
+              `0 0 15px ${colors.glow}`,
+              `0 0 30px ${colors.glow}`,
+              `0 0 15px ${colors.glow}`,
+            ],
+          }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.45rem 1.15rem',
+            borderRadius: '9999px',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05))',
+            border: `1.5px solid ${colors.accent}`,
+            backdropFilter: 'blur(12px)',
+            pointerEvents: 'auto',
+          }}
+        >
+          <motion.span
+            animate={{ rotate: [0, 15, -15, 0] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ fontSize: '1.1rem', display: 'inline-block' }}
+          >
+            🫧
+          </motion.span>
+          <span
+            style={{
+              fontSize: 'clamp(0.8rem, 2.3vw, 0.94rem)',
+              fontWeight: 700,
+              color: '#ffffff',
+              letterSpacing: '0.02em',
+            }}
+          >
+            {discoveredItems.size === items.length
+              ? '🎉 All bubbles popped! Tap Continue below'
+              : `Tap the glowing bubbles to pop & discover! (${discoveredItems.size}/${items.length})`}
+          </span>
+        </motion.div>
+
+        {/* Progress track */}
+        <div
+          style={{
+            width: '140px',
+            height: '4px',
+            borderRadius: '9999px',
+            background: 'rgba(255, 255, 255, 0.12)',
+            overflow: 'hidden',
+          }}
+        >
+          <motion.div
+            animate={{ width: `${(discoveredItems.size / items.length) * 100}%` }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            style={{
+              height: '100%',
+              background: `linear-gradient(90deg, ${colors.accent}, ${colors.accentSecondary})`,
+              borderRadius: '9999px',
+              boxShadow: `0 0 8px ${colors.accent}`,
+            }}
+          />
+        </div>
       </motion.div>
 
-      {/* Floating celestial objects */}
+      {/* Floating luminous celestial glass bubbles */}
       {items.map((item, i) => {
         const pos = positions[i % positions.length];
         const isDiscovered = discoveredItems.has(item.id);
-        const floatDuration = 4 + (i % 3);
+        const floatDuration = 3.8 + (i % 3);
         const floatDelay = i * 0.3;
 
         return (
-          <motion.button
+          <div
             key={item.id}
-            onClick={() => handleDiscover(item.id)}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-              y: [0, -10, 0],
-            }}
-            transition={{
-              opacity: { delay: 0.3 + i * 0.1, duration: 0.5 },
-              scale: {
-                delay: 0.3 + i * 0.1,
-                type: 'spring',
-                stiffness: 240,
-                damping: 18,
-              },
-              y: {
-                duration: floatDuration,
-                repeat: Infinity,
-                repeatType: 'reverse',
-                ease: 'easeInOut',
-                delay: floatDelay,
-              },
-            }}
-            whileHover={{
-              scale: 1.12,
-              boxShadow: `0 0 35px ${item.color}55`,
-            }}
-            whileTap={{ scale: 0.92 }}
             style={{
               position: 'absolute',
               left: pos.x,
               top: pos.y,
-              width: isMobile ? '72px' : 'clamp(80px, 12vw, 98px)',
-              height: isMobile ? '72px' : 'clamp(80px, 12vw, 98px)',
-              borderRadius: '50%',
-              background: isDiscovered
-                ? `radial-gradient(circle, ${item.color}25 0%, ${colors.bgSurface} 80%)`
-                : `${colors.bgSurface}`,
-              border: `1.5px solid ${isDiscovered ? `${item.color}60` : 'rgba(255,255,255,0.12)'}`,
-              boxShadow: isDiscovered
-                ? `0 0 25px ${item.color}35`
-                : '0 8px 25px rgba(0,0,0,0.5)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '2px',
-              cursor: 'pointer',
-              backdropFilter: 'blur(8px)',
               zIndex: 5,
-              padding: '6px',
             }}
-            aria-label={`Discover: ${item.label}`}
           >
-            <span style={{ fontSize: isMobile ? '1.5rem' : '1.8rem' }}>{item.emoji}</span>
-            <span
-              style={{
-                fontSize: isMobile ? '0.58rem' : '0.66rem',
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                color: isDiscovered ? item.color : colors.textMuted,
-                fontWeight: 600,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                maxWidth: '90%',
-              }}
-            >
-              {item.label}
-            </span>
-
-            {/* Discovered indicator badge */}
-            {isDiscovered && (
+            {/* Radiating beacon ripple wave for unvisited bubbles */}
+            {!isDiscovered && (
               <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
+                animate={{
+                  scale: [1, 1.45, 1.85],
+                  opacity: [0.8, 0.3, 0],
+                }}
+                transition={{
+                  duration: 2.2,
+                  repeat: Infinity,
+                  delay: i * 0.4,
+                  ease: 'easeOut',
+                }}
                 style={{
                   position: 'absolute',
-                  top: 2,
-                  right: 2,
-                  width: 10,
-                  height: 10,
+                  inset: -6,
                   borderRadius: '50%',
-                  background: item.color,
-                  boxShadow: `0 0 8px ${item.color}`,
+                  border: `2px solid ${item.color}`,
+                  pointerEvents: 'none',
+                  zIndex: 0,
                 }}
               />
             )}
-          </motion.button>
+
+            {/* Tap guide tooltip for the first unvisited bubble */}
+            {!isDiscovered && i === 0 && discoveredItems.size === 0 && (
+              <motion.div
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+                style={{
+                  position: 'absolute',
+                  top: -30,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  background: 'linear-gradient(135deg, #f43f5e, #fbbf24)',
+                  color: '#ffffff',
+                  padding: '3px 9px',
+                  borderRadius: '9999px',
+                  fontSize: '0.68rem',
+                  fontWeight: 800,
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 4px 15px rgba(244,63,94,0.5)',
+                  zIndex: 12,
+                  pointerEvents: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '3px',
+                }}
+              >
+                <span>👆 TAP ME!</span>
+              </motion.div>
+            )}
+
+            <motion.button
+              onClick={() => handleDiscover(item.id)}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                y: [0, -10, 0],
+              }}
+              transition={{
+                opacity: { delay: 0.3 + i * 0.1, duration: 0.5 },
+                scale: {
+                  delay: 0.3 + i * 0.1,
+                  type: 'spring',
+                  stiffness: 240,
+                  damping: 18,
+                },
+                y: {
+                  duration: floatDuration,
+                  repeat: Infinity,
+                  repeatType: 'reverse',
+                  ease: 'easeInOut',
+                  delay: floatDelay,
+                },
+              }}
+              whileHover={{
+                scale: 1.15,
+                boxShadow: `0 0 45px ${item.color}80, inset 0 2px 8px rgba(255,255,255,0.9)`,
+              }}
+              whileTap={{ scale: 0.88 }}
+              style={{
+                width: isMobile ? '76px' : 'clamp(84px, 12.5vw, 104px)',
+                height: isMobile ? '76px' : 'clamp(84px, 12.5vw, 104px)',
+                borderRadius: '50%',
+                background: `radial-gradient(circle at 35% 28%, rgba(255,255,255,0.3) 0%, ${isDiscovered ? `${item.color}35` : `${item.color}20`} 40%, ${colors.bgSurface} 95%)`,
+                border: `2px solid ${isDiscovered ? item.color : 'rgba(255, 255, 255, 0.55)'}`,
+                boxShadow: isDiscovered
+                  ? `0 0 35px ${item.color}65, inset 0 2px 6px rgba(255,255,255,0.8), inset 0 -4px 12px ${item.color}45`
+                  : `0 8px 30px rgba(0,0,0,0.6), 0 0 20px ${item.color}40, inset 0 2px 6px rgba(255,255,255,0.7), inset 0 -4px 12px ${item.color}30`,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '2px',
+                cursor: 'pointer',
+                backdropFilter: 'blur(12px)',
+                zIndex: 5,
+                padding: '6px',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+              aria-label={`Discover: ${item.label}`}
+            >
+              {/* Specular Curved Highlight (Liquid Glass Top-Left) */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '9%',
+                  left: '16%',
+                  width: '40%',
+                  height: '24%',
+                  borderRadius: '50%',
+                  background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.3) 50%, transparent 100%)',
+                  transform: 'rotate(-28deg)',
+                  pointerEvents: 'none',
+                }}
+              />
+
+              {/* Specular Curved Highlight (Liquid Glass Bottom-Right) */}
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '10%',
+                  right: '16%',
+                  width: '32%',
+                  height: '18%',
+                  borderRadius: '50%',
+                  background: `radial-gradient(ellipse at center, ${item.color}99 0%, transparent 80%)`,
+                  transform: 'rotate(-15deg)',
+                  pointerEvents: 'none',
+                }}
+              />
+
+              {/* Content / Thumbnail */}
+              {item.image ? (
+                <div
+                  style={{
+                    width: isMobile ? '34px' : '40px',
+                    height: isMobile ? '34px' : '40px',
+                    borderRadius: '50%',
+                    overflow: 'hidden',
+                    border: '1.5px solid rgba(255,255,255,0.8)',
+                    boxShadow: '0 0 10px rgba(255,255,255,0.5)',
+                  }}
+                >
+                  <img
+                    src={item.image}
+                    alt="Memory"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                </div>
+              ) : (
+                <span style={{ fontSize: isMobile ? '1.55rem' : '1.9rem', position: 'relative', zIndex: 2 }}>
+                  {item.emoji}
+                </span>
+              )}
+
+              <span
+                style={{
+                  fontSize: isMobile ? '0.58rem' : '0.66rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  color: isDiscovered ? '#ffffff' : colors.textMuted,
+                  fontWeight: 700,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth: '92%',
+                  position: 'relative',
+                  zIndex: 2,
+                  textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+                }}
+              >
+                {item.label}
+              </span>
+
+              {/* Discovered Check Indicator */}
+              {isDiscovered && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  style={{
+                    position: 'absolute',
+                    top: 3,
+                    right: 3,
+                    width: 12,
+                    height: 12,
+                    borderRadius: '50%',
+                    background: item.color,
+                    boxShadow: `0 0 10px ${item.color}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '8px',
+                    color: '#ffffff',
+                    fontWeight: 900,
+                  }}
+                >
+                  ✓
+                </motion.div>
+              )}
+            </motion.button>
+          </div>
         );
       })}
 

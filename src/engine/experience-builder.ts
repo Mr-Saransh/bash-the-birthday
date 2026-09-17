@@ -1,4 +1,4 @@
-import type { BirthdayData, ExperienceConfig } from '@/lib/types';
+import type { BirthdayData, ExperienceConfig, GeneratedContent } from '@/lib/types';
 import { getThemeForPersonality } from '@/engine/themes';
 import { generateContent } from '@/engine/content-generator';
 import { buildSceneSequence } from '@/engine/scene-sequencer';
@@ -9,10 +9,11 @@ import { buildSceneSequence } from '@/engine/scene-sequencer';
  */
 export function buildExperience(
   data: BirthdayData,
-  slug: string
+  slug: string,
+  customContent?: GeneratedContent
 ): ExperienceConfig {
   const theme = getThemeForPersonality(data.personality);
-  const content = generateContent(data);
+  const content = customContent || generateContent(data);
   const scenes = buildSceneSequence(data);
 
   return {

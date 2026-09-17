@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ExperienceConfig } from '@/lib/types';
 import { firstName } from '@/lib/utils';
+import { Sparkles } from 'lucide-react';
 
 interface FinaleSceneProps {
   config: ExperienceConfig;
@@ -13,16 +14,59 @@ interface FinaleSceneProps {
 export default function FinaleScene({ config, onNext }: FinaleSceneProps) {
   const [giftOpened, setGiftOpened] = useState(false);
   const [showFinalMessage, setShowFinalMessage] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
   const name = firstName(config.data.recipientName).toUpperCase();
   const { colors, typography } = config.theme;
   const finalLine = config.content.finalLine;
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Soft celebratory chime using Web Audio
+  const playChime = useCallback(() => {
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof window.AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const freqs = [523.25, 659.25, 783.99, 1046.5];
+      freqs.forEach((f, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, ctx.currentTime + idx * 0.09);
+
+        gain.gain.setValueAtTime(0, ctx.currentTime + idx * 0.09);
+        gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + idx * 0.09 + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.09 + 1.8);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + idx * 0.09);
+        osc.stop(ctx.currentTime + idx * 0.09 + 2);
+      });
+    } catch {
+      // Audio autoplay policy fallback
+    }
+  }, []);
+
   const handleOpenGift = () => {
+    playChime();
     setGiftOpened(true);
     setTimeout(() => {
       setShowFinalMessage(true);
-    }, 1200);
+    }, 1100);
   };
+
+  const particleCount = isMobile ? 18 : 36;
 
   return (
     <motion.div
@@ -33,9 +77,11 @@ export default function FinaleScene({ config, onNext }: FinaleSceneProps) {
       transition={{ duration: 0.8 }}
       style={{
         background: giftOpened
-          ? `radial-gradient(ellipse at center, ${colors.bgSurface} 0%, ${colors.bg} 70%)`
+          ? `radial-gradient(ellipse at center, ${colors.bgSurface} 0%, ${colors.bg} 85%)`
           : colors.bg,
         transition: 'background 1.5s ease',
+        overflow: 'hidden',
+        padding: 'clamp(1rem, 4vw, 2.5rem)',
       }}
     >
       <AnimatePresence mode="wait">
@@ -48,36 +94,36 @@ export default function FinaleScene({ config, onNext }: FinaleSceneProps) {
             animate={{ opacity: 1 }}
             exit={{
               opacity: 0,
-              scale: 1.5,
-              filter: 'blur(20px)',
-              transition: { duration: 0.8 },
+              scale: 1.4,
+              filter: 'blur(16px)',
+              transition: { duration: 0.7 },
             }}
-            style={{ gap: '2rem' }}
+            style={{ gap: '1.75rem', maxWidth: '440px' }}
           >
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
               className="body-text"
-              style={{ color: colors.textMuted }}
+              style={{ color: colors.textMuted, fontSize: 'clamp(1rem, 3vw, 1.25rem)' }}
             >
-              One last thing.
+              One final surprise for you.
             </motion.p>
 
-            {/* AI-crafted glowing gift box */}
+            {/* Glowing gift box button */}
             <motion.button
               onClick={handleOpenGift}
-              initial={{ opacity: 0, scale: 0.7 }}
+              initial={{ opacity: 0, scale: 0.8 }}
               animate={{
                 opacity: 1,
                 scale: 1,
-                y: [0, -10, 0],
+                y: [0, -8, 0],
               }}
               transition={{
-                opacity: { delay: 0.5, duration: 0.8 },
-                scale: { delay: 0.5, type: 'spring', stiffness: 200, damping: 15 },
+                opacity: { delay: 0.4, duration: 0.7 },
+                scale: { delay: 0.4, type: 'spring', stiffness: 220, damping: 16 },
                 y: {
-                  delay: 1.2,
+                  delay: 1,
                   duration: 2.5,
                   repeat: Infinity,
                   repeatType: 'reverse',
@@ -85,13 +131,13 @@ export default function FinaleScene({ config, onNext }: FinaleSceneProps) {
                 },
               }}
               whileHover={{
-                scale: 1.06,
-                boxShadow: `0 0 70px ${colors.glow}`,
+                scale: 1.05,
+                boxShadow: `0 0 60px ${colors.glow}`,
               }}
               whileTap={{ scale: 0.94 }}
               style={{
-                width: 'clamp(180px, 45vw, 240px)',
-                height: 'clamp(180px, 45vw, 240px)',
+                width: 'clamp(180px, 46vw, 230px)',
+                height: 'clamp(180px, 46vw, 230px)',
                 borderRadius: '32px',
                 border: `2px solid ${colors.accent}60`,
                 background: 'transparent',
@@ -101,13 +147,13 @@ export default function FinaleScene({ config, onNext }: FinaleSceneProps) {
                 cursor: 'pointer',
                 position: 'relative',
                 overflow: 'hidden',
-                boxShadow: `0 15px 50px rgba(0,0,0,0.5), 0 0 35px ${colors.glow}`,
+                boxShadow: `0 20px 50px rgba(0,0,0,0.6), 0 0 35px ${colors.glow}`,
               }}
-              aria-label="Open your gift"
+              aria-label="Open your birthday gift"
             >
               <img
                 src="/images/ai-birthday-gift.jpg"
-                alt="Enchanted AI Birthday Gift"
+                alt="Enchanted Birthday Gift"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
               <div
@@ -122,35 +168,43 @@ export default function FinaleScene({ config, onNext }: FinaleSceneProps) {
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1.5, duration: 0.6 }}
+              transition={{ delay: 1.2, duration: 0.5 }}
               className="caption-text"
-              style={{ color: colors.textMuted }}
+              style={{
+                color: colors.accent,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                justifyContent: 'center',
+              }}
             >
-              Tap the glowing gift to open
+              <Sparkles size={14} />
+              <span>Tap the glowing gift box to open</span>
             </motion.p>
           </motion.div>
         ) : (
-          /* After opening — THE BIG REVEAL */
+          /* After opening — THE BIG CELEBRATION */
           <motion.div
             key="reveal"
             className="scene-content"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            style={{ gap: '2rem' }}
+            style={{ gap: '1.75rem', maxWidth: '580px', position: 'relative' }}
           >
-            {/* Celebration particles */}
+            {/* Optimized celebration particles for 60fps on mobile */}
             <div
               style={{
                 position: 'absolute',
                 inset: 0,
                 overflow: 'hidden',
                 pointerEvents: 'none',
+                zIndex: 0,
               }}
             >
-              {Array.from({ length: 40 }).map((_, i) => {
-                const size = Math.random() * 6 + 2;
-                const isGlow = i < 10;
+              {Array.from({ length: particleCount }).map((_, i) => {
+                const size = (i % 4) * 2 + 3;
+                const isGlow = i < 6;
                 return (
                   <motion.div
                     key={i}
@@ -161,14 +215,14 @@ export default function FinaleScene({ config, onNext }: FinaleSceneProps) {
                       opacity: 1,
                     }}
                     animate={{
-                      x: `${Math.random() * 100}vw`,
-                      y: `${Math.random() * 100}vh`,
-                      scale: [0, 1.5, 0.8],
+                      x: `${((i * 17) % 95) + 2}vw`,
+                      y: `${((i * 23) % 95) + 2}vh`,
+                      scale: [0, 1.4, 0.7],
                       opacity: [1, 0.8, 0],
                     }}
                     transition={{
-                      duration: 2 + Math.random() * 2,
-                      delay: Math.random() * 0.5,
+                      duration: 2 + (i % 3) * 0.6,
+                      delay: (i % 5) * 0.1,
                       ease: 'easeOut',
                     }}
                     style={{
@@ -182,7 +236,7 @@ export default function FinaleScene({ config, onNext }: FinaleSceneProps) {
                         ? colors.accentSecondary
                         : colors.particle,
                       boxShadow: isGlow
-                        ? `0 0 ${size * 4}px ${colors.accent}`
+                        ? `0 0 12px ${colors.accent}`
                         : 'none',
                     }}
                   />
@@ -190,21 +244,22 @@ export default function FinaleScene({ config, onNext }: FinaleSceneProps) {
               })}
             </div>
 
-            {/* Glowing backdrop */}
+            {/* Glowing backdrop halo */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
+              initial={{ opacity: 0, scale: 0.6 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 position: 'absolute',
-                width: '80vw',
-                height: '80vw',
-                maxWidth: '600px',
-                maxHeight: '600px',
+                width: '75vw',
+                height: '75vw',
+                maxWidth: '480px',
+                maxHeight: '480px',
                 borderRadius: '50%',
                 background: `radial-gradient(circle, ${colors.glow} 0%, transparent 70%)`,
-                filter: 'blur(40px)',
+                filter: 'blur(35px)',
                 pointerEvents: 'none',
+                zIndex: 1,
               }}
             />
 
@@ -212,9 +267,9 @@ export default function FinaleScene({ config, onNext }: FinaleSceneProps) {
             <motion.h1
               initial={{
                 opacity: 0,
-                scale: 0.3,
-                filter: 'blur(30px)',
-                y: 50,
+                scale: 0.4,
+                filter: 'blur(20px)',
+                y: 35,
               }}
               animate={{
                 opacity: 1,
@@ -223,47 +278,56 @@ export default function FinaleScene({ config, onNext }: FinaleSceneProps) {
                 y: 0,
               }}
               transition={{
-                delay: 0.5,
-                duration: 1.5,
+                delay: 0.3,
+                duration: 1.2,
                 ease: [0.16, 1, 0.3, 1],
               }}
               style={{
                 fontFamily: typography.displayFont,
-                fontSize: 'clamp(2.5rem, 10vw, 6rem)',
+                fontSize: 'clamp(2.2rem, 8vw, 5.2rem)',
                 fontWeight: 800,
-                letterSpacing: '-0.04em',
-                lineHeight: 1,
+                letterSpacing: '-0.03em',
+                lineHeight: 1.05,
                 textAlign: 'center',
                 position: 'relative',
                 zIndex: 2,
+                wordBreak: 'break-word',
+                margin: 0,
               }}
             >
-              <span style={{ display: 'block', marginBottom: '0.2em' }}>
+              <span style={{ display: 'block', marginBottom: '0.15em' }}>
                 HAPPY
               </span>
-              <span style={{ display: 'block', marginBottom: '0.2em' }}>
+              <span style={{ display: 'block', marginBottom: '0.15em' }}>
                 BIRTHDAY,
               </span>
               <span
-                className="gradient-text"
-                style={{ display: 'block' }}
+                style={{
+                  display: 'block',
+                  background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentSecondary})`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
               >
                 {name}.
               </span>
             </motion.h1>
 
-            {/* Final personalized line */}
+            {/* Final personalized prophecy / closing wish */}
             {showFinalMessage && (
               <motion.p
-                initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
+                initial={{ opacity: 0, y: 15, filter: 'blur(6px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                 style={{
-                  fontSize: 'clamp(1rem, 2.5vw, 1.3rem)',
+                  fontSize: 'clamp(1rem, 2.6vw, 1.25rem)',
                   color: colors.textMuted,
                   position: 'relative',
                   zIndex: 2,
-                  maxWidth: '400px',
+                  maxWidth: '440px',
+                  lineHeight: 1.65,
+                  textAlign: 'center',
+                  margin: 0,
                 }}
               >
                 {finalLine}
@@ -273,22 +337,22 @@ export default function FinaleScene({ config, onNext }: FinaleSceneProps) {
             {/* Continue to outro */}
             {showFinalMessage && (
               <motion.button
-                className="btn-ghost"
+                className="btn-primary"
                 onClick={onNext}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 2, duration: 0.5 }}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.4, duration: 0.5 }}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
                 style={{
-                  marginTop: '2rem',
-                  borderColor: `${colors.accent}30`,
-                  color: colors.accent,
+                  marginTop: '0.5rem',
+                  padding: '0.8rem 2.2rem',
                   position: 'relative',
                   zIndex: 2,
+                  boxShadow: `0 8px 30px ${colors.glow}`,
                 }}
               >
-                ✦
+                <span>Complete Journey ✦</span>
               </motion.button>
             )}
           </motion.div>

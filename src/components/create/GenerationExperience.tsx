@@ -9,11 +9,11 @@ interface GenerationExperienceProps {
 }
 
 const STAGES = [
-  { text: 'Getting the vibe right', emoji: '✨', duration: 1200 },
-  { text: 'Creating the story', emoji: '📖', duration: 1400 },
-  { text: 'Picking the memories', emoji: '📸', duration: 1000 },
-  { text: 'Adding the little details', emoji: '🎨', duration: 1300 },
-  { text: 'Preparing the surprise', emoji: '🎁', duration: 1500 },
+  { text: 'Analyzing your personal answers...', emoji: '✨', duration: 1100 },
+  { text: 'Weaving quirks, anthems & inside jokes...', emoji: '🔮', duration: 1300 },
+  { text: 'Crafting royal persona & storytelling...', emoji: '👑', duration: 1200 },
+  { text: 'Framing photos & digital memories...', emoji: '📸', duration: 1100 },
+  { text: 'Polishing the celebration universe...', emoji: '🎁', duration: 1200 },
 ];
 
 export default function GenerationExperience({

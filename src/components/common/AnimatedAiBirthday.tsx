@@ -97,14 +97,16 @@ export default function AnimatedAiBirthday({
     playWishChime();
     onWishMade?.();
 
-    // Spawn 140 celebratory golden and warm rose particles
+    // Spawn celebratory golden and warm rose particles (scaled for mobile performance)
     const canvas = canvasRef.current;
     if (!canvas) return;
     const cx = canvas.width / 2;
     const cy = mode === 'cake' ? canvas.height * 0.35 : canvas.height * 0.45;
+    const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 768;
+    const burstCount = isMobileDevice ? 50 : 130;
 
-    for (let i = 0; i < 140; i++) {
-      const angle = (Math.PI * 2 * i) / 140 + (Math.random() - 0.5);
+    for (let i = 0; i < burstCount; i++) {
+      const angle = (Math.PI * 2 * i) / burstCount + (Math.random() - 0.5);
       const speed = 2.5 + Math.random() * 6.5;
       const isConfetti = Math.random() > 0.4;
       particlesRef.current.push({
@@ -149,6 +151,19 @@ export default function AnimatedAiBirthday({
 
     let width = (canvas.width = canvas.offsetWidth);
     let height = (canvas.height = canvas.offsetHeight);
+    const isMobile = window.innerWidth < 768;
+    const maxAmbientParticles = isMobile ? 30 : 75;
+
+    let isVisible = true;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        isVisible = entry.isIntersecting;
+      });
+    }, { threshold: 0.1 });
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
 
     const handleResize = () => {
       if (!canvas) return;
@@ -160,11 +175,17 @@ export default function AnimatedAiBirthday({
     let frame = 0;
 
     const render = () => {
+      if (!isVisible) {
+        animFrameRef.current = requestAnimationFrame(render);
+        return;
+      }
+
       frame++;
       ctx.clearRect(0, 0, width, height);
 
       // Continuously spawn ambient floating candle embers
-      if (frame % 3 === 0 && particlesRef.current.length < 80) {
+      const spawnInterval = isMobile ? 6 : 3;
+      if (frame % spawnInterval === 0 && particlesRef.current.length < maxAmbientParticles) {
         const cx = mode === 'cake' ? width * (0.35 + Math.random() * 0.3) : width * (0.4 + Math.random() * 0.2);
         const cy = mode === 'cake' ? height * (0.22 + Math.random() * 0.18) : height * (0.4 + Math.random() * 0.2);
 

@@ -7,8 +7,10 @@ import type { BirthdayData, Personality, Relationship } from '@/lib/types';
 import { PERSONALITIES, RELATIONSHIPS } from '@/lib/types';
 import GenerationExperience from './GenerationExperience';
 import ShareScreen from './ShareScreen';
+import PhotoUploader from './PhotoUploader';
+import ExperienceShell from '@/components/experience/ExperienceShell';
 import { buildExperience } from '@/engine/experience-builder';
-import { slugify } from '@/lib/utils';
+import { slugify, encodeBirthdayData } from '@/lib/utils';
 import type { ExperienceConfig } from '@/lib/types';
 
 const RELATIONSHIP_LABELS: Record<Relationship, string> = {
@@ -45,12 +47,14 @@ const PERSONALITY_EMOJIS: Record<Personality, string> = {
   mysterious: '🔮',
 };
 
-type FlowStage = 'form' | 'generating' | 'share';
+type FlowStage = 'form' | 'generating' | 'share' | 'preview';
 
 export default function CreationForm() {
   const [stage, setStage] = useState<FlowStage>('form');
   const [step, setStep] = useState(0);
   const [experience, setExperience] = useState<ExperienceConfig | null>(null);
+  const [payload, setPayload] = useState<string>('');
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
 
   // Form state
   const [recipientName, setRecipientName] = useState('');
@@ -58,6 +62,11 @@ export default function CreationForm() {
   const [relationship, setRelationship] = useState<Relationship | null>(null);
   const [personality, setPersonality] = useState<Personality | null>(null);
   const [favoriteThing, setFavoriteThing] = useState('');
+  const [quirkOrHabit, setQuirkOrHabit] = useState('');
+  const [superpowerOrTitle, setSuperpowerOrTitle] = useState('');
+  const [favoriteSong, setFavoriteSong] = useState('');
+  const [insideJoke, setInsideJoke] = useState('');
+  const [photoUrl, setPhotoUrl] = useState('');
   const [memory, setMemory] = useState('');
   const [optionalMessage, setOptionalMessage] = useState('');
   const [songUrl, setSongUrl] = useState('');
@@ -77,7 +86,7 @@ export default function CreationForm() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!relationship || !personality) return;
 
     const data: BirthdayData = {
@@ -86,6 +95,11 @@ export default function CreationForm() {
       relationship,
       personality,
       favoriteThing: favoriteThing.trim(),
+      quirkOrHabit: quirkOrHabit.trim() || undefined,
+      superpowerOrTitle: superpowerOrTitle.trim() || undefined,
+      favoriteSong: favoriteSong.trim() || undefined,
+      insideJoke: insideJoke.trim() || undefined,
+      photoUrl: photoUrl || undefined,
       memory: memory.trim() || undefined,
       optionalMessage: optionalMessage.trim() || undefined,
       songUrl: songUrl.trim() || undefined,
@@ -95,16 +109,50 @@ export default function CreationForm() {
     const randomPart = Math.random().toString(36).substring(2, 6);
     const slug = `${slugify(data.recipientName)}-${randomPart}`;
 
-    // Build experience
-    const config = buildExperience(data, slug);
-    setExperience(config);
-
-    // Store in localStorage for demo
-    localStorage.setItem(`bv-${slug}`, JSON.stringify(data));
-
-    // Move to generation stage
     setStage('generating');
+    setIsAiGenerating(true);
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      const config = (res.ok && result.content)
+        ? buildExperience(data, slug, result.content)
+        : buildExperience(data, slug);
+
+      const encoded = encodeBirthdayData(data);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`bv-${slug}`, JSON.stringify(data));
+        localStorage.setItem('bv-latest-payload', encoded);
+      }
+
+      setExperience(config);
+      setPayload(encoded);
+    } catch {
+      const config = buildExperience(data, slug);
+      const encoded = encodeBirthdayData(data);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`bv-${slug}`, JSON.stringify(data));
+        localStorage.setItem('bv-latest-payload', encoded);
+      }
+      setExperience(config);
+      setPayload(encoded);
+    } finally {
+      setIsAiGenerating(false);
+    }
   };
+
+  if (stage === 'preview' && experience) {
+    return (
+      <ExperienceShell
+        config={experience}
+        onExit={() => setStage('share')}
+      />
+    );
+  }
 
   if (stage === 'generating' && experience) {
     return (
@@ -116,7 +164,14 @@ export default function CreationForm() {
   }
 
   if (stage === 'share' && experience) {
-    return <ShareScreen slug={experience.slug} recipientName={recipientName} />;
+    return (
+      <ShareScreen
+        slug={experience.slug}
+        recipientName={recipientName}
+        payload={payload}
+        onPreview={() => setStage('preview')}
+      />
+    );
   }
 
   const totalSteps = 4;
@@ -411,7 +466,7 @@ export default function CreationForm() {
                     color: 'var(--text-secondary)',
                   }}
                 >
-                  One thing you love about them
+                  One thing you love about them <span style={{ color: 'var(--accent)' }}>*</span>
                 </label>
                 <input
                   id="favoriteThing"
@@ -450,7 +505,7 @@ export default function CreationForm() {
                     color: 'var(--text-secondary)',
                   }}
                 >
-                  Your name
+                  Your name <span style={{ color: 'var(--accent)' }}>*</span>
                 </label>
                 <input
                   id="senderName"
@@ -478,10 +533,114 @@ export default function CreationForm() {
                   }
                 />
               </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label
+                  htmlFor="quirkOrHabit"
+                  style={{
+                    fontSize: '0.9rem',
+                    fontWeight: 500,
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  Their signature quirk or habit (No guessing!)
+                </label>
+                <input
+                  id="quirkOrHabit"
+                  type="text"
+                  value={quirkOrHabit}
+                  onChange={(e) => setQuirkOrHabit(e.target.value)}
+                  placeholder="e.g. has 47 browser tabs and talks in funny accents"
+                  style={{
+                    width: '100%',
+                    padding: '0.875rem 1rem',
+                    fontSize: '1rem',
+                    background: 'var(--bg-surface)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: 'var(--radius-md)',
+                    color: 'var(--text-primary)',
+                    outline: 'none',
+                    transition: 'border-color 0.2s',
+                    fontFamily: 'inherit',
+                  }}
+                  onFocus={(e) =>
+                    (e.target.style.borderColor = 'var(--accent)')
+                  }
+                  onBlur={(e) =>
+                    (e.target.style.borderColor = 'rgba(255,255,255,0.08)')
+                  }
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label
+                    htmlFor="favoriteSong"
+                    style={{
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      color: 'var(--text-secondary)',
+                    }}
+                  >
+                    Their favorite song / anthem
+                  </label>
+                  <input
+                    id="favoriteSong"
+                    type="text"
+                    value={favoriteSong}
+                    onChange={(e) => setFavoriteSong(e.target.value)}
+                    placeholder="e.g. Golden Hour - JVKE"
+                    style={{
+                      width: '100%',
+                      padding: '0.875rem 1rem',
+                      fontSize: '1rem',
+                      background: 'var(--bg-surface)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: 'var(--radius-md)',
+                      color: 'var(--text-primary)',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      fontFamily: 'inherit',
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label
+                    htmlFor="insideJoke"
+                    style={{
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      color: 'var(--text-secondary)',
+                    }}
+                  >
+                    An inside joke or reference
+                  </label>
+                  <input
+                    id="insideJoke"
+                    type="text"
+                    value={insideJoke}
+                    onChange={(e) => setInsideJoke(e.target.value)}
+                    placeholder="e.g. the 2 AM ramen debate"
+                    style={{
+                      width: '100%',
+                      padding: '0.875rem 1rem',
+                      fontSize: '1rem',
+                      background: 'var(--bg-surface)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: 'var(--radius-md)',
+                      color: 'var(--text-primary)',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                      fontFamily: 'inherit',
+                    }}
+                  />
+                </div>
+              </div>
             </motion.div>
           )}
 
-          {/* ─── Step 3: Optional extras ─── */}
+          {/* ─── Step 3: Optional extras & Cloudinary Photo ─── */}
           {step === 3 && (
             <motion.div
               key="step-3"
@@ -500,7 +659,7 @@ export default function CreationForm() {
                     marginBottom: '0.5rem',
                   }}
                 >
-                  Step 4 of {totalSteps} · Optional
+                  Step 4 of {totalSteps} · Visuals & Memories
                 </p>
                 <h2
                   style={{
@@ -510,15 +669,22 @@ export default function CreationForm() {
                     letterSpacing: '-0.02em',
                   }}
                 >
-                  Want to add more?
+                  Memories & Photo
                 </h2>
                 <p
                   className="body-text"
                   style={{ marginTop: '0.5rem', fontSize: '0.95rem' }}
                 >
-                  Everything here is optional. Skip if you want.
+                  Upload a photo to be placed in an illuminated glowing Polaroid frame.
                 </p>
               </div>
+
+              {/* Cloudinary Photo Uploader */}
+              <PhotoUploader
+                value={photoUrl}
+                onChange={(url) => setPhotoUrl(url)}
+                onRemove={() => setPhotoUrl('')}
+              />
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label

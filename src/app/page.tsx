@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Sparkles, Heart, Play, Gift, Cake } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, Heart, Play, Gift, Cake, Camera, Music, MessageCircle } from 'lucide-react';
 import type { BirthdayData, Personality, Relationship, ExperienceConfig } from '@/lib/types';
 import { PERSONALITIES, RELATIONSHIPS } from '@/lib/types';
 import GenerationExperience from '@/components/create/GenerationExperience';
 import ShareScreen from '@/components/create/ShareScreen';
 import ExperienceShell from '@/components/experience/ExperienceShell';
 import AnimatedAiBirthday from '@/components/common/AnimatedAiBirthday';
+import PhotoUploader from '@/components/create/PhotoUploader';
 import { buildExperience } from '@/engine/experience-builder';
 import { slugify, encodeBirthdayData, decodeBirthdayData } from '@/lib/utils';
 
@@ -84,9 +85,14 @@ const DEMO_DATA: BirthdayData = {
   senderName: 'Alex',
   relationship: 'best-friend',
   personality: 'main-character',
-  favoriteThing: 'the way you turn every ordinary day into an unforgettable adventure',
-  memory: 'getting lost at 2 AM singing retro anthems at the top of our lungs',
+  favoriteThing: 'the way you turn every ordinary Tuesday into an unforgettable adventure',
+  quirkOrHabit: 'has 47 open tabs and speaks in random accents when nervous',
+  superpowerOrTitle: 'Crown Ruler of Spontaneous Midnight Quests',
+  favoriteSong: 'Golden Hour - JVKE',
+  insideJoke: 'the 2 AM parallel universe debate over spicy ramen',
+  memory: 'getting lost in the pouring rain singing retro anthems at the top of our lungs until our stomachs ached',
   optionalMessage: 'You light up every room you enter. Here is to another magical year around the sun!',
+  photoUrl: '/images/ai-birthday-cake.jpg',
 };
 
 type PageView = 'hub' | 'generating' | 'share' | 'experience';
@@ -98,13 +104,19 @@ function BirthdayAppContent() {
   const [generatedPayload, setGeneratedPayload] = useState<string>('');
   const [generatedSlug, setGeneratedSlug] = useState<string>('');
   const [isRecipientDirectLoad, setIsRecipientDirectLoad] = useState(false);
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
 
-  // Form state
+  // Form state — Hyper-personalized (zero generic guessing)
   const [recipientName, setRecipientName] = useState('');
   const [senderName, setSenderName] = useState('');
   const [relationship, setRelationship] = useState<Relationship | null>('best-friend');
   const [personality, setPersonality] = useState<Personality | null>('main-character');
   const [favoriteThing, setFavoriteThing] = useState('');
+  const [quirkOrHabit, setQuirkOrHabit] = useState('');
+  const [superpowerOrTitle, setSuperpowerOrTitle] = useState('');
+  const [favoriteSong, setFavoriteSong] = useState('');
+  const [insideJoke, setInsideJoke] = useState('');
+  const [photoUrl, setPhotoUrl] = useState('');
   const [memory, setMemory] = useState('');
   const [optionalMessage, setOptionalMessage] = useState('');
   const [songUrl, setSongUrl] = useState('');
@@ -136,28 +148,38 @@ function BirthdayAppContent() {
     }
   }, []);
 
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   const canProceed = () => {
     switch (step) {
-      case 0: return recipientName.trim().length > 0 && relationship !== null;
+      case 0: return recipientName.trim().length > 0 && senderName.trim().length > 0 && relationship !== null;
       case 1: return personality !== null;
-      case 2: return favoriteThing.trim().length > 0 && senderName.trim().length > 0;
+      case 2: return favoriteThing.trim().length > 0;
+      case 3: return true;
       default: return false;
     }
   };
 
-  const createSurpriseConfig = useCallback((): { config: ExperienceConfig; payload: string; slug: string } => {
-    const data: BirthdayData = {
+  const getFormData = useCallback((): BirthdayData => {
+    return {
       recipientName: recipientName.trim(),
       senderName: senderName.trim(),
       relationship: relationship || 'best-friend',
       personality: personality || 'main-character',
       favoriteThing: favoriteThing.trim(),
+      quirkOrHabit: quirkOrHabit.trim() || undefined,
+      superpowerOrTitle: superpowerOrTitle.trim() || undefined,
+      favoriteSong: favoriteSong.trim() || undefined,
+      insideJoke: insideJoke.trim() || undefined,
+      photoUrl: photoUrl || undefined,
       memory: memory.trim() || undefined,
       optionalMessage: optionalMessage.trim() || undefined,
       songUrl: songUrl.trim() || undefined,
     };
+  }, [recipientName, senderName, relationship, personality, favoriteThing, quirkOrHabit, superpowerOrTitle, favoriteSong, insideJoke, photoUrl, memory, optionalMessage, songUrl]);
+
+  const createSurpriseConfig = useCallback((): { config: ExperienceConfig; payload: string; slug: string } => {
+    const data = getFormData();
     const randomPart = Math.random().toString(36).substring(2, 6);
     const slug = `${slugify(data.recipientName)}-${randomPart}`;
     const config = buildExperience(data, slug);
@@ -169,16 +191,52 @@ function BirthdayAppContent() {
     }
 
     return { config, payload, slug };
-  }, [recipientName, senderName, relationship, personality, favoriteThing, memory, optionalMessage, songUrl]);
+  }, [getFormData]);
 
-  // Handle submit to share stage
-  const handleGenerate = () => {
+  // Handle submit to AI generation & share stage
+  const handleGenerate = async () => {
     if (!canProceed()) return;
-    const { config, payload, slug } = createSurpriseConfig();
-    setActiveExperience(config);
-    setGeneratedPayload(payload);
-    setGeneratedSlug(slug);
+    const data = getFormData();
+    const randomPart = Math.random().toString(36).substring(2, 6);
+    const slug = `${slugify(data.recipientName)}-${randomPart}`;
+
     setView('generating');
+    setIsAiGenerating(true);
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      const config = (res.ok && result.content)
+        ? buildExperience(data, slug, result.content)
+        : buildExperience(data, slug);
+
+      const payload = encodeBirthdayData(data);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`bv-${slug}`, JSON.stringify(data));
+        localStorage.setItem('bv-latest-payload', payload);
+      }
+
+      setActiveExperience(config);
+      setGeneratedPayload(payload);
+      setGeneratedSlug(slug);
+    } catch (err) {
+      console.warn('AI generation error, falling back to local experience builder:', err);
+      const config = buildExperience(data, slug);
+      const payload = encodeBirthdayData(data);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`bv-${slug}`, JSON.stringify(data));
+        localStorage.setItem('bv-latest-payload', payload);
+      }
+      setActiveExperience(config);
+      setGeneratedPayload(payload);
+      setGeneratedSlug(slug);
+    } finally {
+      setIsAiGenerating(false);
+    }
   };
 
   // Immediate preview of current inputs
@@ -205,6 +263,11 @@ function BirthdayAppContent() {
     setRelationship(DEMO_DATA.relationship);
     setPersonality(DEMO_DATA.personality);
     setFavoriteThing(DEMO_DATA.favoriteThing);
+    setQuirkOrHabit(DEMO_DATA.quirkOrHabit || '');
+    setSuperpowerOrTitle(DEMO_DATA.superpowerOrTitle || '');
+    setFavoriteSong(DEMO_DATA.favoriteSong || '');
+    setInsideJoke(DEMO_DATA.insideJoke || '');
+    setPhotoUrl(DEMO_DATA.photoUrl || '');
     setMemory(DEMO_DATA.memory || '');
     setOptionalMessage(DEMO_DATA.optionalMessage || '');
     setActiveExperience(config);
@@ -218,10 +281,15 @@ function BirthdayAppContent() {
     setRecipientName('Riya');
     setSenderName('Aarav');
     setRelationship('partner');
-    setPersonality('main-character');
-    setFavoriteThing('your laugh when we tell silly inside jokes');
-    setMemory('stargazing on the balcony till sunrise');
-    setOptionalMessage('You make the world warmer just by being in it.');
+    setPersonality('chaotic');
+    setFavoriteThing('the 2 AM parallel universe debates over spicy ramen');
+    setQuirkOrHabit('has 47 browser tabs and talks in funny accents when nervous');
+    setSuperpowerOrTitle('Chief Parallel Universe Investigator & Certified Ramen Oracle');
+    setFavoriteSong('Golden Hour - JVKE');
+    setInsideJoke('the monsoon tea stall flood adventure');
+    setPhotoUrl('/images/ai-birthday-cake.jpg');
+    setMemory('getting stuck under that tiny tea stall awning laughing until our stomachs hurt');
+    setOptionalMessage('You make every ordinary Tuesday into an unforgettable adventure.');
   };
 
   // ─── Direct Experience View (for recipient or instant preview) ───
@@ -562,7 +630,8 @@ function BirthdayAppContent() {
               >
                 {step === 0 && 'Who are we celebrating today? 💝'}
                 {step === 1 && 'What is their birthday vibe? ✨'}
-                {step === 2 && 'Add that personal heartwarming touch 💫'}
+                {step === 2 && 'Hyper-Personal Touch — No Guessing! 🎯'}
+                {step === 3 && 'Memories, Photo & Blessings 📸'}
               </h2>
             </div>
 
@@ -609,34 +678,58 @@ function BirthdayAppContent() {
 
           {/* Step Form Body */}
           <div>
-            {/* STEP 0: RECIPIENT & RELATIONSHIP */}
+            {/* STEP 0: RECIPIENT & SENDER & RELATIONSHIP */}
             {step === 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <label htmlFor="recipientName" style={{ fontSize: '0.92rem', fontWeight: 600, color: '#fcd19c' }}>
-                    Their name (what you call them)
-                  </label>
-                  <input
-                    id="recipientName"
-                    type="text"
-                    value={recipientName}
-                    onChange={(e) => setRecipientName(e.target.value)}
-                    placeholder="e.g. Riya, Sunny, Pops"
-                    style={inputStyle}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = '#fbbf24';
-                      e.target.style.boxShadow = '0 0 20px rgba(251, 191, 36, 0.25)';
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = 'rgba(251, 191, 36, 0.2)';
-                      e.target.style.boxShadow = 'none';
-                    }}
-                  />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <label htmlFor="recipientName" style={{ fontSize: '0.92rem', fontWeight: 600, color: '#fcd19c' }}>
+                      Their name (the birthday star) <span style={{ color: '#f43f5e' }}>*</span>
+                    </label>
+                    <input
+                      id="recipientName"
+                      type="text"
+                      value={recipientName}
+                      onChange={(e) => setRecipientName(e.target.value)}
+                      placeholder="e.g. Riya, Maya, Sunny"
+                      style={inputStyle}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = '#fbbf24';
+                        e.target.style.boxShadow = '0 0 20px rgba(251, 191, 36, 0.25)';
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = 'rgba(251, 191, 36, 0.2)';
+                        e.target.style.boxShadow = 'none';
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <label htmlFor="senderName" style={{ fontSize: '0.92rem', fontWeight: 600, color: '#fcd19c' }}>
+                      Your name (the creator) <span style={{ color: '#f43f5e' }}>*</span>
+                    </label>
+                    <input
+                      id="senderName"
+                      type="text"
+                      value={senderName}
+                      onChange={(e) => setSenderName(e.target.value)}
+                      placeholder="e.g. Aarav, Alex, Bestie"
+                      style={inputStyle}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = '#fbbf24';
+                        e.target.style.boxShadow = '0 0 20px rgba(251, 191, 36, 0.25)';
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = 'rgba(251, 191, 36, 0.2)';
+                        e.target.style.boxShadow = 'none';
+                      }}
+                    />
+                  </div>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <label style={{ fontSize: '0.92rem', fontWeight: 600, color: '#fcd19c' }}>
-                    They are your…
+                    They are your… <span style={{ color: '#f43f5e' }}>*</span>
                   </label>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
                     {RELATIONSHIPS.map((rel) => {
@@ -735,36 +828,84 @@ function BirthdayAppContent() {
               </div>
             )}
 
-            {/* STEP 2: PERSONAL HEART TOUCH */}
+            {/* STEP 2: HYPER-PERSONAL TOUCH (NO GENERIC GUESSING) */}
             {step === 2 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <p style={{ fontSize: '0.88rem', color: '#fbbf24', margin: 0, fontWeight: 500 }}>
+                  ✨ Our AI crafts custom storytelling directly from your answers. No generic clichés like &quot;music lover&quot;!
+                </p>
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <label htmlFor="favoriteThing" style={{ fontSize: '0.92rem', fontWeight: 600, color: '#fcd19c' }}>
-                    One thing you adore / cherish about them <span style={{ color: '#f43f5e' }}>*</span>
+                    One specific thing you adore / cherish about them <span style={{ color: '#f43f5e' }}>*</span>
                   </label>
                   <input
                     id="favoriteThing"
                     type="text"
                     value={favoriteThing}
                     onChange={(e) => setFavoriteThing(e.target.value)}
-                    placeholder="e.g. how excited you get about tiny coffee shops, or your infectious laugh"
+                    placeholder="e.g. the 2 AM parallel universe debates over spicy ramen, or their infectious laugh"
                     style={inputStyle}
                   />
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <label htmlFor="senderName" style={{ fontSize: '0.92rem', fontWeight: 600, color: '#fcd19c' }}>
-                    Your name (the sender) <span style={{ color: '#f43f5e' }}>*</span>
+                  <label htmlFor="quirkOrHabit" style={{ fontSize: '0.92rem', fontWeight: 600, color: '#fcd19c' }}>
+                    Their signature quirk, funny habit, or catchphrase <span style={{ fontSize: '0.75rem', color: '#baa0aa' }}>(recommended)</span>
                   </label>
                   <input
-                    id="senderName"
+                    id="quirkOrHabit"
                     type="text"
-                    value={senderName}
-                    onChange={(e) => setSenderName(e.target.value)}
-                    placeholder="e.g. Alex, Mom, Maya"
+                    value={quirkOrHabit}
+                    onChange={(e) => setQuirkOrHabit(e.target.value)}
+                    placeholder="e.g. has 47 open browser tabs and speaks in accents when nervous"
                     style={inputStyle}
                   />
                 </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <label htmlFor="favoriteSong" style={{ fontSize: '0.92rem', fontWeight: 600, color: '#fcd19c' }}>
+                      Their favorite song / anthem <span style={{ fontSize: '0.75rem', color: '#baa0aa' }}>(optional)</span>
+                    </label>
+                    <input
+                      id="favoriteSong"
+                      type="text"
+                      value={favoriteSong}
+                      onChange={(e) => setFavoriteSong(e.target.value)}
+                      placeholder="e.g. Golden Hour - JVKE, Taylor Swift"
+                      style={inputStyle}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <label htmlFor="insideJoke" style={{ fontSize: '0.92rem', fontWeight: 600, color: '#fcd19c' }}>
+                      An inside joke or secret reference <span style={{ fontSize: '0.75rem', color: '#baa0aa' }}>(optional)</span>
+                    </label>
+                    <input
+                      id="insideJoke"
+                      type="text"
+                      value={insideJoke}
+                      onChange={(e) => setInsideJoke(e.target.value)}
+                      placeholder="e.g. the monsoon tea stall flood adventure"
+                      style={inputStyle}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3: MEMORIES, PHOTO & BLESSINGS */}
+            {step === 3 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                {/* Cloudinary Photo Uploader */}
+                <PhotoUploader
+                  label="Add a Photo Memory (Powered by Cloudinary)"
+                  sublabel="Upload a favorite picture of them or you two together. It will appear in a glowing memory frame!"
+                  value={photoUrl}
+                  onChange={(url) => setPhotoUrl(url)}
+                  onRemove={() => setPhotoUrl('')}
+                />
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <label htmlFor="memory" style={{ fontSize: '0.92rem', fontWeight: 600, color: '#fcd19c' }}>
@@ -888,27 +1029,27 @@ function BirthdayAppContent() {
                 <button
                   type="button"
                   onClick={handleGenerate}
-                  disabled={!canProceed()}
+                  disabled={!canProceed() || isAiGenerating}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '0.5rem',
                     padding: '0.85rem 2.2rem',
                     borderRadius: '9999px',
-                    background: canProceed()
+                    background: canProceed() && !isAiGenerating
                       ? 'linear-gradient(135deg, #f43f5e 0%, #fb923c 50%, #fbbf24 100%)'
                       : 'rgba(255,255,255,0.1)',
                     border: '1px solid rgba(255,255,255,0.2)',
                     color: '#ffffff',
                     fontSize: '1rem',
                     fontWeight: 700,
-                    cursor: canProceed() ? 'pointer' : 'not-allowed',
-                    opacity: canProceed() ? 1 : 0.45,
+                    cursor: canProceed() && !isAiGenerating ? 'pointer' : 'not-allowed',
+                    opacity: canProceed() && !isAiGenerating ? 1 : 0.5,
                     boxShadow: canProceed() ? '0 8px 30px rgba(244, 63, 94, 0.45)' : 'none',
                   }}
                 >
                   <Sparkles size={18} />
-                  <span>Generate Shareable Surprise 🎁</span>
+                  <span>{isAiGenerating ? 'Weaving AI Birthday Magic...' : 'Generate Personalized Surprise 🎁'}</span>
                 </button>
               )}
             </div>

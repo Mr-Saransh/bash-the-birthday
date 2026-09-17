@@ -39,6 +39,14 @@ export interface BirthdayData {
   photoUrl?: string;
   photoUrl2?: string;
   songUrl?: string;
+  /** Hilarious signature quirk, habit, or catchphrase */
+  quirkOrHabit?: string;
+  /** What makes them uniquely them / superpower / unofficial title */
+  superpowerOrTitle?: string;
+  /** Favorite song, anthem, or music artist */
+  favoriteSong?: string;
+  /** Inside joke or unique shared reference */
+  insideJoke?: string;
 }
 
 // ─── Generated Content ──────────────────────────────────────────────
@@ -46,10 +54,14 @@ export interface BirthdayData {
 export interface GeneratedContent {
   /** Lines shown during the intro / mystery stage */
   introLines: string[];
+  /** Custom royal or hilarious persona title (e.g. Chief Parallel Universe Investigator) */
+  personalityTitle?: string;
   /** Personality-derived observations ("statistically very [Name]") */
   observations: string[];
   /** Intro text before the memory reveal */
   memoryIntro: string;
+  /** Cinematic / heartwarming storytelling of their memory */
+  memoryTribute?: string;
   /** Playful personality descriptors for the reveal stage */
   personalityDescriptors: string[];
   /** The emotional transition line */
@@ -62,6 +74,8 @@ export interface GeneratedContent {
   secretMessage: string;
   /** Relationship-based intro descriptor */
   relationshipLine: string;
+  /** Soundtrack or musical dedication line */
+  soundtrackNote?: string;
 }
 
 // ─── Theme Configuration ────────────────────────────────────────────

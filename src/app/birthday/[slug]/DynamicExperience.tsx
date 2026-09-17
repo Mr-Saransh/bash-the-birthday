@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { buildExperience } from '@/engine/experience-builder';
 import type { BirthdayData, ExperienceConfig } from '@/lib/types';
+import { decodeBirthdayData } from '@/lib/utils';
 import ExperienceShell from '@/components/experience/ExperienceShell';
 import { motion } from 'framer-motion';
 
@@ -15,8 +16,30 @@ export default function DynamicExperience({ slug }: DynamicExperienceProps) {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    // For now, load from localStorage (Phase 4 will use API)
-    const stored = localStorage.getItem(`bv-${slug}`);
+    // 1. Check URL query params or hash for portable sharing (?b=... or #b=...)
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const bQuery = searchParams.get('b') || searchParams.get('data');
+      let payload = bQuery;
+
+      if (!payload && window.location.hash) {
+        const hash = window.location.hash.replace(/^#/, '');
+        const hashParams = new URLSearchParams(hash);
+        payload = hashParams.get('b') || hashParams.get('data') || (hash.startsWith('b=') ? hash.substring(2) : null);
+      }
+
+      if (payload) {
+        const decoded = decodeBirthdayData<BirthdayData>(payload);
+        if (decoded && decoded.recipientName) {
+          const experience = buildExperience(decoded, slug);
+          setConfig(experience);
+          return;
+        }
+      }
+    }
+
+    // 2. Fallback to localStorage
+    const stored = typeof window !== 'undefined' ? localStorage.getItem(`bv-${slug}`) : null;
     if (stored) {
       try {
         const data: BirthdayData = JSON.parse(stored);

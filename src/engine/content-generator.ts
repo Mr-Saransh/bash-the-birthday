@@ -109,79 +109,98 @@ const RELATIONSHIP_LINES: Record<Relationship, string[]> = {
 };
 
 function buildObservations(data: BirthdayData): string[] {
-  const { recipientName, personality, favoriteThing, relationship } = data;
+  const { recipientName, personality, favoriteThing, quirkOrHabit, insideJoke, favoriteSong, superpowerOrTitle } = data;
   const name = recipientName.split(' ')[0];
+
+  const customItems: string[] = [];
+
+  // Hyper-personalized inputs take priority over generic template
+  if (quirkOrHabit) {
+    customItems.push(`Statistically documented quirk: ${quirkOrHabit}`);
+  }
+  if (insideJoke) {
+    customItems.push(`The only person who truly gets: "${insideJoke}"`);
+  }
+  if (favoriteSong) {
+    customItems.push(`Having "${favoriteSong}" practically hardwired into their soul`);
+  }
+  if (superpowerOrTitle) {
+    customItems.push(`Casually possessing the superpower of ${superpowerOrTitle}`);
+  }
 
   // Base observations derived from personality
   const personalityObs: Record<Personality, (n: string, fav: string) => string[]> = {
     chaotic: (n, fav) => [
-      `Turning a 10-minute plan into a 3-hour adventure`,
-      `Having an unreasonably intense relationship with ${fav}`,
-      `Starting fires (metaphorical, usually)`,
-      `Making questionable decisions that somehow work out`,
-      `Being the reason someone said "we can never come back here"`,
+      `Turning a 10-minute errand into an unforgettable 3-hour saga`,
+      `Having an unreasonably passionate relationship with ${fav}`,
+      `Starting metaphorical fires and somehow making them cozy`,
+      `Making questionable spur-of-the-moment calls that somehow work out`,
+      `Being the reason people say "we can never come back here, but it was worth it"`,
     ],
     funny: (n, fav) => [
-      `Making people laugh at things they probably shouldn't`,
-      `Having an unhealthy obsession with ${fav}`,
-      `Delivering perfect comedic timing in real life`,
-      `Saying the thing everyone was thinking but no one would say`,
-      `Being genuinely funny without trying (the worst kind)`,
+      `Making people spit out their drink at the most inappropriate moments`,
+      `Having a hilariously intense dedication to ${fav}`,
+      `Delivering comedic masterclasses in everyday conversations`,
+      `Saying the exact outrageous thing everyone was thinking`,
+      `Being effortlessly hilarious without even realizing it`,
     ],
     soft: (n, fav) => [
-      `Making people feel safe without even knowing it`,
+      `Making anyone feel instantly safe and heard within two minutes`,
       `Caring about ${fav} a completely normal amount (debatable)`,
-      `Giving advice that actually works`,
-      `Remembering the small things no one else does`,
-      `Being the calm in everyone else's storm`,
+      `Giving life-changing advice casually over tea`,
+      `Remembering the quiet details everyone else forgets`,
+      `Being the peaceful lighthouse in everyone else's storm`,
     ],
     adventurous: (n, fav) => [
-      `Saying "let's go" before knowing where`,
+      `Saying "let's go" before even knowing what country we're going to`,
       `Having a deeply personal connection with ${fav}`,
-      `Collecting experiences instead of things`,
-      `Having a passport that tells better stories than most people`,
-      `Never running out of "that one time" stories`,
+      `Collecting unbelievable memories instead of dust`,
+      `Treating life like a grand open-world adventure`,
+      `Never running out of "you won't believe what happened" stories`,
     ],
     introvert: (n, fav) => [
-      `Processing the universe one quiet thought at a time`,
-      `Knowing everything about ${fav} at an expert level`,
-      `Having opinions so specific they become fascinating`,
-      `Being the friend who shows up when it actually matters`,
-      `Thinking before speaking (revolutionary behavior)`,
+      `Processing the cosmos in gentle, profound silence`,
+      `Knowing everything about ${fav} at a world-class level`,
+      `Having opinions so thoughtful they stop the whole room`,
+      `Being the friend whose presence is grounding without saying a word`,
+      `Thinking deeply before speaking (a true superpower)`,
     ],
     'main-character': (n, fav) => [
-      `Having a personal aesthetic and never breaking character`,
-      `Making ${fav} look like a lifestyle`,
-      `Walking in slow motion without realizing it`,
-      `Having a soundtrack playing in their head at all times`,
-      `Making normal activities look cinematic`,
+      `Having a cinematic aesthetic and never breaking protagonist mode`,
+      `Making ${fav} look like an editorial magazine spread`,
+      `Walking down the street as if a movie score is playing`,
+      `Bringing effortless royal energy into every room`,
+      `Turning completely normal situations into iconic moments`,
     ],
     'class-clown': (n, fav) => [
-      `Being unable to take anything seriously for more than 8 seconds`,
-      `Making ${fav} somehow funnier than it should be`,
-      `Having a signature move that everyone recognizes`,
-      `Turning any awkward situation into a comedy bit`,
-      `Being the reason everyone checks their phone for memes`,
+      `Being physically incapable of staying serious for more than 7 seconds`,
+      `Making ${fav} somehow ten times funnier than it should be`,
+      `Being the undisputed beating heart of the group chat`,
+      `Turning any awkward silence into a stand-up routine`,
+      `The permanent cure for anyone having a rough day`,
     ],
     ambitious: (n, fav) => [
-      `Turning ${fav} into a full personality trait`,
-      `Making a to-do list and actually finishing it (suspicious)`,
-      `Having "main character energy" in meetings`,
-      `Setting a goal and making it look easy`,
-      `Inspiring people while simultaneously intimidating them`,
+      `Turning ${fav} into an entire masterclass strategy`,
+      `Writing a 10-point checklist and conquering every single one`,
+      `Moving through life with undeniable unstoppable momentum`,
+      `Turning "what if" into "watch me make it happen"`,
+      `Inspiring everyone in their orbit to dream bigger`,
     ],
     mysterious: (n, fav) => [
-      `Knowing everything about ${fav} but telling no one`,
-      `Having a vibe that people try (and fail) to replicate`,
-      `Disappearing for three days and coming back with a story`,
-      `Giving answers that create more questions`,
-      `Being the topic of conversation when they're not there`,
+      `Knowing everything about ${fav} while keeping an air of intrigue`,
+      `Having a radiant vibe people spend years trying to decipher`,
+      `Vanishing for three days and returning with an unbelievable tale`,
+      `Answering questions with answers that unlock secret levels`,
+      `Being the person everyone talks about when they step out`,
     ],
   };
 
-  const pool = personalityObs[personality](name, favoriteThing);
-  // Pick 4 shuffled observations
-  return shuffleAndPick(pool, 4);
+  const pool = personalityObs[personality]?.(name, favoriteThing) || personalityObs['main-character'](name, favoriteThing);
+
+  // Blend custom personal observations with curated pool
+  const needed = Math.max(0, 4 - customItems.length);
+  const pickedPool = shuffleAndPick(pool, needed);
+  return [...customItems, ...pickedPool].slice(0, 4);
 }
 
 const EMOTIONAL_TRANSITIONS: string[] = [
@@ -333,15 +352,32 @@ export function generateContent(data: BirthdayData): GeneratedContent {
 
   const secretMessage = pickOne(SECRET_MESSAGES);
 
+  const titles: Record<Personality, string> = {
+    'main-character': 'The Royal Protagonist',
+    chaotic: 'The Master of Beautiful Chaos',
+    funny: 'The Undisputed Comedy Headliner',
+    soft: 'The Warm Lighthouse of Good Energy',
+    adventurous: 'The Fearless Explorer of Worlds',
+    introvert: 'The Quiet Universe Architect',
+    'class-clown': 'The Chief Executive of Joy',
+    ambitious: 'The Unstoppable Visionary',
+    mysterious: 'The Enigmatic Starlight Phantom',
+  };
+
+  const personalityTitle = data.superpowerOrTitle || titles[data.personality] || 'The Birthday Icon';
+
   return {
     introLines,
+    personalityTitle,
     observations,
     memoryIntro,
+    memoryTribute: data.memory,
     personalityDescriptors,
     emotionalTransition,
     fallbackMessage,
     finalLine,
     secretMessage,
     relationshipLine,
+    soundtrackNote: data.favoriteSong ? `Soundtrack: ${data.favoriteSong}` : undefined,
   };
 }
